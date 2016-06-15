@@ -15,9 +15,76 @@
 
 import logging
 
+from journal import transaction, global_store_manager
+from journal.messages import transaction_message
+
+from sawtooth_xo.xo_exceptions import XoException
 
 LOGGER = logging.getLogger(__name__)
 
 
 def _register_transaction_types(ledger):
-    LOGGER.error("sawtooth_xo register_transaction_types not implemented")
+    ledger.register_message_handler(
+        XoTransactionMessage,
+        transaction_message.transaction_message_handler)
+    ledger.add_transaction_store(XoTransaction)
+
+
+class XoTransactionMessage(transaction_message.TransactionMessage):
+    MessageType = "/Xo/Transaction"
+
+    def __init__(self, minfo=None):
+        if minfo is None:
+            minfo = {}
+
+        super(XoTransactionMessage, self).__init__(minfo)
+
+        tinfo = minfo.get('Transaction', {})
+        self.Transaction = XoTransaction(tinfo)
+
+
+class XoTransaction(transaction.Transaction):
+    TransactionTypeName = '/XoTransaction'
+    TransactionStoreType = global_store_manager.KeyValueStore
+    MessageType = XoTransactionMessage
+
+    def __init__(self, minfo=None):
+        if minfo is None:
+            minfo = {}
+
+        super(XoTransaction, self).__init__(minfo)
+
+        LOGGER.debug("minfo: %s", repr(minfo))
+        LOGGER.error("XoTransaction __init__ not implemented")
+
+    def __str__(self):
+        LOGGER.error("XoTransaction __str__ not implemented")
+        return "XoTransaction"
+
+    def is_valid(self, store):
+        try:
+            self.check_valid(store)
+        except XoException as e:
+            LOGGER.debug('invalid transaction (%s): %s', str(e), str(self))
+            return False
+
+        return True
+
+    def check_valid(self, store):
+        if not super(XoTransaction, self).is_valid(store):
+            raise XoException("invalid transaction")
+
+        LOGGER.debug('checking %s', str(self))
+
+        raise XoException('XoTransaction.check_valid is not implemented')
+
+    def apply(self, store):
+        LOGGER.debug('apply %s', str(self))
+        LOGGER.error('XoTransaction.apply is not implemented')
+
+    def dump(self):
+        result = super(XoTransaction, self).dump()
+
+        LOGGER.error('XoTransaction.dump is not implemented')
+
+        return result
