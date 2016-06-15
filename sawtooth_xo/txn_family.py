@@ -60,8 +60,13 @@ class XoTransaction(transaction.Transaction):
         self._space = minfo['Space'] if 'Space' in minfo else None
 
     def __str__(self):
-        LOGGER.error("XoTransaction __str__ not implemented")
-        return "XoTransaction"
+        try:
+            oid = self.OriginatorID
+        except AssertionError:
+            oid = "unknown"
+        return "({0} {1} {2})".format(oid,
+                                      self._name,
+                                      self._space)
 
     def is_valid(self, store):
         try:
