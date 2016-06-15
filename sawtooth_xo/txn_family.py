@@ -55,7 +55,9 @@ class XoTransaction(transaction.Transaction):
         super(XoTransaction, self).__init__(minfo)
 
         LOGGER.debug("minfo: %s", repr(minfo))
-        LOGGER.error("XoTransaction __init__ not implemented")
+        self._name = minfo['Name'] if 'Name' in minfo else None
+        self._action = minfo['Action'] if 'Action' in minfo else None
+        self._space = minfo['Space'] if 'Space' in minfo else None
 
     def __str__(self):
         LOGGER.error("XoTransaction __str__ not implemented")
@@ -85,6 +87,9 @@ class XoTransaction(transaction.Transaction):
     def dump(self):
         result = super(XoTransaction, self).dump()
 
-        LOGGER.error('XoTransaction.dump is not implemented')
+        result['Action'] = self._action
+        result['Name'] = self._name
+        if self._space is not None:
+            result['Space'] = self._space
 
         return result
